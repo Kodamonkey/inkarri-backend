@@ -12,32 +12,38 @@ DB_USER = os.getenv('DB_USER')
 DB_PASSWORD = os.getenv('DB_PASSWORD')
 DB_NAME = os.getenv('DB_NAME')
 
-try:
-    # Establecer la conexión a la base de datos
-    connection = mysql.connector.connect(
-        host=DB_HOST,
-        user=DB_USER,
-        password=DB_PASSWORD,
-        database=DB_NAME
-    )
+class DatabaseConnection:
+    """Clase para manejar la conexión a la base de datos."""
 
-    if connection.is_connected():
-        print("Conexión exitosa a la base de datos")
-        # Obtener información del servidor
-        db_info = connection.get_server_info()
-        print(f"Versión del servidor MySQL: {db_info}")
+    def __init__(self):
+        self.connection = None
 
-        # Crear un cursor para ejecutar consultas
-        cursor = connection.cursor()
-        cursor.execute("SELECT DATABASE();")
-        record = cursor.fetchone()
-        print(f"Conectado a la base de datos: {record}")
+    def connect(self):
+        """Establece la conexión a la base de datos."""
+        try:
+            self.connection = mysql.connector.connect(
+                host=DB_HOST,
+                user=DB_USER,
+                password=DB_PASSWORD,
+                database=DB_NAME
+            )
+            if self.connection.is_connected():
+                print("Conexión exitosa a la base de datos")
+        except Error as e:
+            print(f"Error al conectar a la base de datos: {e}")
+            raise
 
-except Error as e:
-    print(f"Error al conectar a la base de datos: {e}")
+    def get_connection(self):
+        """Devuelve la conexión activa."""
+        if not self.connection or not self.connection.is_connected():
+            self.connect()
+        return self.connection
 
-finally:
-    if 'connection' in locals() and connection.is_connected():
-        cursor.close()
-        connection.close()
-        print("Conexión cerrada")
+    def close(self):
+        """Cierra la conexión a la base de datos."""
+        if self.connection and self.connection.is_connected():
+            self.connection.close()
+            print("Conexión cerrada")
+
+# Crear una instancia global de la conexión
+connection = DatabaseConnection()
