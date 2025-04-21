@@ -7,10 +7,10 @@ import bcrypt
 # Load environment variables from .env file
 load_dotenv()
 
-class User:
-    def __init__(self, id=None, username=None, email=None, password=None, create_time=None, access=None):
+class Admin:
+    def __init__(self, id=None, Adminname=None, email=None, password=None, create_time=None, access=None):
         self.id = id
-        self.username = username
+        self.Adminname = Adminname
         self.email = email
         self.password = password
         self.create_time = create_time
@@ -20,38 +20,38 @@ class User:
     def get_connection():
         return mysql.connector.connect(
             host=os.getenv('DB_HOST'),
-            user=os.getenv('DB_USER'),
+            Admin=os.getenv('DB_Admin'),
             password=os.getenv('DB_PASSWORD'),
             database=os.getenv('DB_NAME')
         )
 
     @staticmethod
     def get_all():
-        conn = User.get_connection()
+        conn = Admin.get_connection()
         cursor = conn.cursor(dictionary=True)
         
         try:
-            cursor.execute("SELECT id, username, email, create_time, access FROM users")
-            users = cursor.fetchall()
-            return users
+            cursor.execute("SELECT id, Adminname, email, create_time, access FROM Admins")
+            Admins = cursor.fetchall()
+            return Admins
         except Exception as e:
-            print(f"Error fetching users: {str(e)}")
+            print(f"Error fetching Admins: {str(e)}")
             return []
         finally:
             cursor.close()
             conn.close()
 
     @staticmethod
-    def get_by_id(user_id):
-        conn = User.get_connection()
+    def get_by_id(Admin_id):
+        conn = Admin.get_connection()
         cursor = conn.cursor(dictionary=True)
         
         try:
-            cursor.execute("SELECT id, username, email, create_time, access FROM users WHERE id = %s", (user_id,))
-            user = cursor.fetchone()
-            return user
+            cursor.execute("SELECT id, Adminname, email, create_time, access FROM Admins WHERE id = %s", (Admin_id,))
+            Admin = cursor.fetchone()
+            return Admin
         except Exception as e:
-            print(f"Error fetching user: {str(e)}")
+            print(f"Error fetching Admin: {str(e)}")
             return None
         finally:
             cursor.close()
@@ -59,22 +59,22 @@ class User:
     
     @staticmethod
     def get_by_email(email):
-        conn = User.get_connection()
+        conn = Admin.get_connection()
         cursor = conn.cursor(dictionary=True)
         
         try:
-            cursor.execute("SELECT * FROM users WHERE email = %s", (email,))
-            user = cursor.fetchone()
-            return user
+            cursor.execute("SELECT * FROM Admins WHERE email = %s", (email,))
+            Admin = cursor.fetchone()
+            return Admin
         except Exception as e:
-            print(f"Error fetching user by email: {str(e)}")
+            print(f"Error fetching Admin by email: {str(e)}")
             return None
         finally:
             cursor.close()
             conn.close()
     
     def create(self):
-        conn = User.get_connection()
+        conn = Admin.get_connection()
         cursor = conn.cursor()
         
         try:
@@ -87,12 +87,12 @@ class User:
                 
             # Default access level if not specified
             if not self.access:
-                self.access = 'user'  # Default to regular user
+                self.access = 'Admin'  # Default to regular Admin
             
-            query = """INSERT INTO users (username, email, password, create_time, access) 
+            query = """INSERT INTO Admins (Adminname, email, password, create_time, access) 
                     VALUES (%s, %s, %s, %s, %s)"""
             cursor.execute(query, (
-                self.username, 
+                self.Adminname, 
                 self.email, 
                 hashed_password, 
                 self.create_time,
@@ -104,15 +104,15 @@ class User:
             return self.id
         except Exception as e:
             conn.rollback()
-            print(f"Error creating user: {str(e)}")
+            print(f"Error creating Admin: {str(e)}")
             return None
         finally:
             cursor.close()
             conn.close()
     
     @staticmethod
-    def update(user_id, data):
-        conn = User.get_connection()
+    def update(Admin_id, data):
+        conn = Admin.get_connection()
         cursor = conn.cursor()
         
         try:
@@ -126,39 +126,39 @@ class User:
                     hashed_password = bcrypt.hashpw(value.encode('utf-8'), bcrypt.gensalt())
                     set_values.append(f"{key} = %s")
                     params.append(hashed_password)
-                elif key in ['username', 'email', 'access']:
+                elif key in ['Adminname', 'email', 'access']:
                     set_values.append(f"{key} = %s")
                     params.append(value)
             
             if not set_values:
                 return False
                 
-            query = f"UPDATE users SET {', '.join(set_values)} WHERE id = %s"
-            params.append(user_id)
+            query = f"UPDATE Admins SET {', '.join(set_values)} WHERE id = %s"
+            params.append(Admin_id)
             
             cursor.execute(query, params)
             conn.commit()
             return cursor.rowcount > 0
         except Exception as e:
             conn.rollback()
-            print(f"Error updating user: {str(e)}")
+            print(f"Error updating Admin: {str(e)}")
             return False
         finally:
             cursor.close()
             conn.close()
     
     @staticmethod
-    def delete(user_id):
-        conn = User.get_connection()
+    def delete(Admin_id):
+        conn = Admin.get_connection()
         cursor = conn.cursor()
         
         try:
-            cursor.execute("DELETE FROM users WHERE id = %s", (user_id,))
+            cursor.execute("DELETE FROM Admins WHERE id = %s", (Admin_id,))
             conn.commit()
             return cursor.rowcount > 0
         except Exception as e:
             conn.rollback()
-            print(f"Error deleting user: {str(e)}")
+            print(f"Error deleting Admin: {str(e)}")
             return False
         finally:
             cursor.close()
@@ -166,11 +166,11 @@ class User:
     
     @staticmethod
     def authenticate(email, password):
-        user = User.get_by_email(email)
-        if not user:
+        Admin = Admin.get_by_email(email)
+        if not Admin:
             return None
             
         # Check password
-        if bcrypt.checkpw(password.encode('utf-8'), user['password'].encode('utf-8')):
-            return user
+        if bcrypt.checkpw(password.encode('utf-8'), Admin['password'].encode('utf-8')):
+            return Admin
         return None
