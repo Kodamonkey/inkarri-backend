@@ -6,7 +6,9 @@ from app.domain.services.client_service import ClientService
 
 # Crear la instancia de Flask
 app = Flask(__name__)
+db.init_app(app)
 
+app.register_blueprint(user_controller, url_prefix='/users')
 # Configurar la infraestructura (por ejemplo, base de datos)
 def configure_infrastructure():
     if connection.is_connected():
