@@ -7,31 +7,43 @@ from flask import Blueprint, request, jsonify
 import bcrypt
 
 
-main = Blueprint('auth_blueprint', __name__)
+auth = Blueprint('auth', __name__)
 
 
-@main.route('/', methods=['POST'])
+@auth.route('/', methods=['POST'])
 def login():
     try:
-        username = request.json['username']
-        password = request.json['password']
-        
-        _user = User(0, username, password, None)
-        authenticated_user = AuthService.login_user(_user)
-        
-        if (authenticated_user != None):
-            encoded_token = Security.generate_token(authenticated_user)   
+        # Obtener datos del JSON enviado en la solicitud
+        data = request.get_json()
+        name = data.get('name')
+        email = data.get('email')
+        password = data.get('password')
+        role = data.get('role', 'user')  # Rol por defecto: 'user'
+
+        # Crear un nuevo usuario
+        new_user = User(
+            name=name,
+            email=email,
+            password=password,
+            role=role
+        )
+
+        # Guardar el usuario en la base de datos
+        user_id = new_user.create()
+
+        if user_id:
             return jsonify({
-                'success': 'true',
-                'token': encoded_token,
-                'user': authenticated_user
-            })
+                'message': 'Usuario registrado exitosamente',
+                'user_id': user_id
+            }), 201
         else:
-            response = jsonify({
-                'message': 'Unanthorized',
-            }) 
-            return response, 401
+            return jsonify({
+                'message': 'Error al registrar el usuario'
+            }), 500
     except Exception as e:
-        print(f"Error in login: {str(e)}")
-        return jsonify({'message': 'Internal server error', 'success': False})
+        print(f"Error en el registro de usuario: {str(e)}")
+        return jsonify({
+            'message': 'Error interno del servidor',
+            'error': str(e)
+        }), 500
     
