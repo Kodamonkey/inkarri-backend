@@ -1,0 +1,55 @@
+{
+  "auth": {
+    "register": {
+      "method": "POST",
+      "url": "/auth/register",
+      "description": "Registrar un nuevo usuario.",
+      "body": {
+        "name": "string",
+        "email": "string",
+        "password": "string",
+        "rut": "string",
+        "role": "string (opcional, por defecto 'user')"
+      },
+      "responses": {
+        "201": {
+          "message": "Usuario registrado exitosamente",
+          "user_id": "integer"
+        },
+        "500": {
+          "message": "Error al registrar el usuario"
+        }
+      }
+    },
+    "login": {
+      "method": "POST",
+      "url": "/auth/login",
+      "description": "Iniciar sesión con email y contraseña.",
+      "body": {
+        "email": "string",
+        "password": "string"
+      },
+      "responses": {
+        "200": {
+          "message": "Login exitoso",
+          "user": {
+            "user_id": "integer",
+            "name": "string",
+            "email": "string",
+            "role": "string",
+            "status": "string"
+          }
+        },
+        "400": {
+          "message": "Email y contraseña son requeridos"
+        },
+        "401": {
+          "message": "Credenciales inválidas o usuario inactivo"
+        },
+        "500": {
+          "message": "Error interno del servidor"
+        }
+      }
+    }
+  }
+}
