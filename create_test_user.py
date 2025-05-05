@@ -8,7 +8,7 @@ def create_test_user():
     # Crear un usuario de prueba
     test_user = User(
         name="usuario_prueba",
-        email="prueba2@ejemplo.com",
+        email="prueba@ejemplo.com",
         password="contraseña123",
         role="admin"  # O "user" si prefieres
     )

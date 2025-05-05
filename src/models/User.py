@@ -8,11 +8,12 @@ import bcrypt
 load_dotenv()
 
 class User:
-    def __init__(self, user_id=None, name=None, email=None, password=None, role=None, 
+    def __init__(self, user_id=None, name=None, email=None, rut=None, password=None, role=None, 
                  status=None, created_at=None, updated_at=None):
         self.user_id = user_id
         self.name = name
         self.email = email
+        self.rut = rut
         self.password = password
         self.role = role
         self.status = status
@@ -35,7 +36,7 @@ class User:
         
         try:
             cursor.execute("""
-                SELECT user_id, name, email, role, status, created_at, updated_at 
+                SELECT user_id, name, email, rut, role, status, created_at, updated_at 
                 FROM users
             """)
             users = cursor.fetchall()
@@ -54,7 +55,7 @@ class User:
         
         try:
             cursor.execute("""
-                SELECT user_id, name, email, role, status, created_at, updated_at 
+                SELECT user_id, name, email, rut, role, status, created_at, updated_at 
                 FROM users 
                 WHERE user_id = %s
             """, (user_id,))
@@ -107,12 +108,13 @@ class User:
                 self.status = 'active'  # Default status
             
             query = """
-                INSERT INTO users (name, email, password, role, status, created_at, updated_at) 
-                VALUES (%s, %s, %s, %s, %s, %s, %s)
+                INSERT INTO users (name, email, rut, password, role, status, created_at, updated_at) 
+                VALUES (%s, %s, %s, %s, %s, %s, %s, %s)
             """
             cursor.execute(query, (
                 self.name, 
                 self.email, 
+                self.rut,
                 hashed_password, 
                 self.role,
                 self.status,

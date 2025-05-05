@@ -1,5 +1,5 @@
 from flask import Flask
-from src.routes.AuthRoutes import main as auth_blueprint
+from src.routes.AuthRoutes import auth as auth_blueprint
 # Importa otros blueprints aquí
 
 def init_app(config):
